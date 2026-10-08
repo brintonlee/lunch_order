@@ -1,0 +1,14 @@
+{
+  "name": "@lunch/discord",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": { "typecheck": "tsc -p tsconfig.json" },
+  "dependencies": {
+    "@lunch/core": "workspace:*",
+    "@lunch/shared": "workspace:*",
+    "discord.js": "^14.22.1"
+  }
+}

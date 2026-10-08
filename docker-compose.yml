@@ -1,0 +1,13 @@
+services:
+  lunch:
+    build: .
+    image: lunch-order:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data

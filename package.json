@@ -1,0 +1,26 @@
+{
+  "name": "lunch-order",
+  "private": true,
+  "version": "0.1.0",
+  "description": "午餐團購系統：Web 後台 + AI 菜單解析 + Discord Bot",
+  "packageManager": "pnpm@9.15.9",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm --filter @lunch/server --filter @lunch/web --parallel dev",
+    "build": "pnpm --filter @lunch/web build && pnpm --filter @lunch/server build",
+    "start": "node apps/server/dist/index.js",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "db:generate": "pnpm --filter @lunch/core db:generate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.19.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.0.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.4"
+  }
+}
