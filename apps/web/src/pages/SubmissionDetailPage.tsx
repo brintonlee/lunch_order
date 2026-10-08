@@ -17,11 +17,16 @@ export function SubmissionDetailPage() {
   const [reason, setReason] = useState("");
 
   useEffect(() => {
-    if (sub.data && !draft) {
+    setDraft(null);
+    setReason("");
+  }, [id]);
+
+  useEffect(() => {
+    if (sub.data && sub.data.id === id && !draft) {
       const parsed = menuDraftSchema.safeParse(sub.data.editedResult);
       if (parsed.success) setDraft(parsed.data);
     }
-  }, [sub.data, draft]);
+  }, [sub.data, draft, id]);
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["submission", id] });

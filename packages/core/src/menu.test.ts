@@ -36,8 +36,8 @@ describe("MenuService", () => {
         address: "",
         note: "",
         items: [
-          { name: "招牌鍋貼", price: 7, category: "鍋貼" },
-          { name: "酸辣湯", price: 35, category: "湯" }
+          { name: "招牌鍋貼", price: 7, category: "鍋貼", isAvailable: true },
+          { name: "酸辣湯", price: 35, category: "湯", isAvailable: true }
         ]
       },
       admin
@@ -51,7 +51,7 @@ describe("MenuService", () => {
         phone: "",
         address: "",
         note: "",
-        items: [{ name: "韭菜鍋貼", price: 8, category: "" }]
+        items: [{ name: "韭菜鍋貼", price: 8, category: "", isAvailable: true }]
       },
       admin
     );
@@ -76,7 +76,7 @@ describe("MenuService", () => {
       {
         source: "format",
         imagePaths: [],
-        draft: { storeName: "小吃店", phone: "", address: "", note: "", items: [{ name: "滷肉飯", price: 40, category: "" }] }
+        draft: { storeName: "小吃店", phone: "", address: "", note: "", items: [{ name: "滷肉飯", price: 40, category: "", isAvailable: true }] }
       },
       member
     );

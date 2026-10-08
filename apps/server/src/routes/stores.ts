@@ -9,8 +9,9 @@ const idParam = z.object({ id: z.coerce.number().int().positive() });
 export const storeRoutes: FastifyPluginAsync<{ core: Core }> = async (app, { core }) => {
   app.get("/stores", async (req) => {
     requireUser(req, app as never);
-    const q = z.object({ includeArchived: z.coerce.boolean().default(false) }).parse(req.query);
-    return core.menus.listStores({ includeArchived: q.includeArchived && req.user?.role === "admin" });
+    const q = z.object({ includeArchived: z.enum(["true", "false", "1", "0"]).optional() }).parse(req.query);
+    const includeArchived = q.includeArchived === "true" || q.includeArchived === "1";
+    return core.menus.listStores({ includeArchived: includeArchived && req.user?.role === "admin" });
   });
 
   app.get("/stores/:id", async (req) => {

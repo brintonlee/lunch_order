@@ -16,7 +16,7 @@ describe("parseMenuText", () => {
 `);
     expect(d.storeName).toBe("八方雲集");
     expect(d.phone).toBe("02-1234-5678");
-    expect(d.items).toEqual([
+    expect(d.items).toMatchObject([
       { name: "招牌鍋貼", price: 7, category: "鍋貼" },
       { name: "韭菜鍋貼", price: 7, category: "鍋貼" },
       { name: "酸辣湯", price: 35, category: "湯" },
@@ -26,12 +26,13 @@ describe("parseMenuText", () => {
 
   it("parses JSON", () => {
     const d = parseMenuText(JSON.stringify({ storeName: "A", items: [{ name: "x", price: 10 }] }));
-    expect(d.items[0]).toEqual({ name: "x", price: 10, category: "" });
+    expect(d.items[0]).toMatchObject({ name: "x", price: 10, category: "" });
   });
 
   it("reports unreadable lines and missing store name", () => {
     expect(() => parseMenuText("店名: A\n沒有價格的行")).toThrow(/第 2 行/);
     expect(() => parseMenuText("滷肉飯 40")).toThrow(/店名/);
+    expect(() => parseMenuText("店名: A\n滷肉飯 1000000")).toThrow(/第 2 行/);
   });
 });
 

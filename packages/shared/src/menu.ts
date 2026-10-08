@@ -5,6 +5,8 @@ export const menuItemDraftSchema = z.object({
   name: z.string().trim().min(1, "品項名稱不可為空").max(80),
   price: z.number().int("價格必須是整數").min(0, "價格不可為負"),
   category: z.string().trim().max(40).optional().default(""),
+  /** 暫停供應的品項在整份取代時保留狀態 */
+  isAvailable: z.boolean().optional().default(true),
   /** AI 解析時的信心度 0–1；人工輸入為 undefined */
   confidence: z.number().min(0).max(1).optional()
 });

@@ -59,7 +59,7 @@ const HEADER_KEYS: Record<string, keyof Omit<MenuDraftInput, "items">> = {
   note: "note"
 };
 
-const PRICE_RE = /(?:nt\$|\$|NT)?\s*(\d{1,6})\s*(?:元|塊)?$/i;
+const PRICE_RE = /(?:nt\$|\$|NT)?\s*(?<!\d)(\d{1,6})\s*(?:元|塊)?$/i;
 
 function parsePlainText(text: string): MenuDraft {
   const draft: MenuDraftInput = { storeName: "", phone: "", address: "", note: "", items: [] };
@@ -91,7 +91,7 @@ function parsePlainText(text: string): MenuDraft {
     const priceMatch = last.match(PRICE_RE);
     if (!priceMatch || parts.length < 2) {
       // 整行結尾可能是「牛肉麵 120元」沒有分隔符號以外的情形，再試一次整行比對
-      const whole = line.match(/^(.*?)[\s,，\t]*(?:nt\$|\$|NT)?\s*(\d{1,6})\s*(?:元|塊)?$/i);
+      const whole = line.match(/^(.*?)[\s,，\t]*(?:nt\$|\$|NT)?\s*(?<!\d)(\d{1,6})\s*(?:元|塊)?$/i);
       if (whole && whole[1]!.trim()) {
         draft.items.push({ name: whole[1]!.trim(), price: Number(whole[2]), category });
         return;

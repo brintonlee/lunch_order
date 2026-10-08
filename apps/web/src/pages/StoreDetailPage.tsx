@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import type { MenuDraft } from "@lunch/shared";
+import { menuDraftSchema, type MenuDraft } from "@lunch/shared";
 import { ErrorBox } from "../components/ErrorBox";
 import { MenuDraftEditor } from "../components/MenuDraftEditor";
 import { api } from "../lib/api";
@@ -23,7 +23,7 @@ export function StoreDetailPage() {
         phone: store.data.phone,
         address: store.data.address,
         note: store.data.note,
-        items: store.data.items.map((i) => ({ name: i.name, price: i.price, category: i.category }))
+        items: store.data.items.map((i) => ({ name: i.name, price: i.price, category: i.category, isAvailable: i.isAvailable }))
       });
     }
   }, [store.data, editing, draft]);
@@ -31,8 +31,11 @@ export function StoreDetailPage() {
   const save = useMutation({
     mutationFn: async () => {
       if (!draft) return;
-      await api.updateStore(id, { name: draft.storeName, phone: draft.phone, address: draft.address, note: draft.note });
-      return api.replaceMenu(id, draft.items);
+      const parsed = menuDraftSchema.safeParse(draft);
+      if (!parsed.success) throw new Error(parsed.error.issues.map((i) => i.message).join("、"));
+      const d = parsed.data;
+      await api.replaceMenu(id, d.items);
+      return api.updateStore(id, { name: d.storeName, phone: d.phone, address: d.address, note: d.note });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["store", id] });

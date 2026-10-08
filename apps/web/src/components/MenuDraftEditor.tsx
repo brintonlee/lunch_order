@@ -6,7 +6,7 @@ interface Props {
   readOnly?: boolean;
 }
 
-const emptyItem = (): MenuItemDraft => ({ name: "", price: 0, category: "" });
+const emptyItem = (): MenuItemDraft => ({ name: "", price: 0, category: "", isAvailable: true });
 
 /** 店家資訊 + 品項表格編輯器；AI 低信心 (<0.6) 的品項會以黃底標示 */
 export function MenuDraftEditor({ draft, onChange, readOnly }: Props) {

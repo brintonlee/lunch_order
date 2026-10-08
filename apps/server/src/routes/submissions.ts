@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
@@ -15,6 +15,26 @@ import {
 import { requireAdmin, requireUser } from "../plugins/auth.js";
 
 const idParam = z.object({ id: z.coerce.number().int().positive() });
+
+/** AI 解析成本高：每人每 10 分鐘最多 N 次，且全站同時最多 M 個請求在處理（限制記憶體） */
+const PARSE_WINDOW_MS = 10 * 60 * 1000;
+const PARSE_PER_USER = 10;
+const PARSE_MAX_CONCURRENT = 2;
+const parseHistory = new Map<number, number[]>();
+let parseInFlight = 0;
+
+function takeParseSlot(userId: number): () => void {
+  const now = Date.now();
+  const recent = (parseHistory.get(userId) ?? []).filter((t) => now - t < PARSE_WINDOW_MS);
+  if (recent.length >= PARSE_PER_USER) throw new CoreError("RATE_LIMITED", "AI 解析次數過多，請 10 分鐘後再試");
+  if (parseInFlight >= PARSE_MAX_CONCURRENT) throw new CoreError("RATE_LIMITED", "目前有太多菜單正在解析，請稍後再試");
+  recent.push(now);
+  parseHistory.set(userId, recent);
+  parseInFlight += 1;
+  return () => {
+    parseInFlight -= 1;
+  };
+}
 const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
 
 export interface SubmissionRouteOptions {
@@ -26,7 +46,7 @@ export interface SubmissionRouteOptions {
 export const submissionRoutes: FastifyPluginAsync<SubmissionRouteOptions> = async (app, { core, parser, uploadsDir }) => {
   /** 上傳 1–N 張照片 → 存檔 → AI 解析 → 回傳草稿（尚未建立投稿） */
   app.post("/menu-submissions/parse", async (req, reply) => {
-    requireUser(req, reply);
+    const user = requireUser(req, reply);
     if (!parser) throw new CoreError("INVALID", "尚未設定 AI 供應商（AI_PROVIDER / AI_API_KEY），請改用格式匯入");
 
     const images: MenuImage[] = [];
@@ -34,7 +54,10 @@ export const submissionRoutes: FastifyPluginAsync<SubmissionRouteOptions> = asyn
     let storeNameHint = "";
     const day = new Date().toISOString().slice(0, 10);
     await mkdir(path.join(uploadsDir, day), { recursive: true });
+    const releaseSlot = takeParseSlot(user.id);
+    const discardSaved = () => Promise.all(savedPaths.map((rel) => rm(path.join(uploadsDir, rel), { force: true })));
 
+    try {
     for await (const part of req.parts()) {
       if (part.type === "file") {
         if (!ALLOWED_MIME.has(part.mimetype)) throw new CoreError("INVALID", `不支援的圖片格式：${part.mimetype}`);
@@ -57,6 +80,12 @@ export const submissionRoutes: FastifyPluginAsync<SubmissionRouteOptions> = asyn
     } catch (err) {
       if (err instanceof MenuParseError) throw new CoreError("INVALID", err.message);
       throw err;
+    }
+    } catch (err) {
+      await discardSaved();
+      throw err;
+    } finally {
+      releaseSlot();
     }
   });
 

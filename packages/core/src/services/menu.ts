@@ -138,6 +138,7 @@ export class MenuService {
               name: it.name,
               price: it.price,
               category: it.category ?? "",
+              isAvailable: it.isAvailable ?? true,
               sortOrder: idx
             }))
           )
