@@ -62,7 +62,7 @@ export function MenuDraftEditor({ draft, onChange, readOnly }: Props) {
                   <input value={it.category ?? ""} onChange={(e) => setItem(idx, { category: e.target.value })} readOnly={readOnly} placeholder="（無）" />
                 </td>
                 <td>
-                  <input value={it.name} onChange={(e) => setItem(idx, { name: e.target.value })} readOnly={readOnly} required />
+                  <input value={it.name} onChange={(e) => setItem(idx, { name: e.target.value })} readOnly={readOnly} required placeholder="品項名稱" />
                 </td>
                 <td>
                   <input

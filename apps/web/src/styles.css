@@ -107,3 +107,15 @@ ul.plain { margin: 0; padding-left: 1.2rem; }
   .items-table th:first-child, .items-table td:first-child { width: 30%; }
   .btn-icon { padding: 0.25rem 0.35rem; }
 }
+
+/* 窄螢幕：導覽列獨立一行、品項表格改為卡片式堆疊，避免輸入框被壓縮 */
+@media (max-width: 600px) {
+  .nav { flex-basis: 100%; order: 3; }
+  .nav a { white-space: nowrap; }
+  .items-table thead { display: none; }
+  .items-table, .items-table tbody { display: block; }
+  .items-table tr { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+  .items-table td { display: block; padding: 0; width: auto !important; }
+  .items-table td:nth-child(2) { grid-column: 1 / -1; }
+  .items-table .row-actions { text-align: right; }
+}
